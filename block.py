@@ -12,9 +12,10 @@ class Block:
         self.last_hash = last_hash
         self.hash = hash
         self.data = data
+        self.chain = []
 
-    def add_block(self, data):
-        self.chain.append(Block(data))
+    # def add_block(self, data):
+    #     self.chain.append(Block(data))
 
     def __repr__(self):
         return (
