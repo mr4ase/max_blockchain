@@ -8,8 +8,3 @@ def test_hex_to_binary():
     binary_test_num = hex_to_binary(hex_test_num)
 
     assert test_num == int(binary_test_num, 2)
-
-
-def test_num_to_binary_crypto_hash():
-    test_num = 521
-    hex_test_crypto_hash = crypto_hash(str(521))
