@@ -36,3 +36,16 @@ def test_blockchain_replace_chain(blockchain_3_blocks):
     assert blockchain_short.chain == blockchain_long.chain
     assert Blockchain.is_valid_blockchain(blockchain_short.chain)
     assert blockchain_short.chain is not blockchain_long.chain
+
+def test_blockchain_replace_chain_shorter_one(blockchain_3_blocks):
+    blockchain = Blockchain()
+    
+    with pytest.raises(Exception, match="Cannot replace the chain. Its lenght is too short"):
+        blockchain_3_blocks.replace_chain(blockchain.chain)
+        
+def test_blockchain_replace_chain_bad_chain(blockchain_3_blocks):
+    blockchain = Blockchain()
+    blockchain_3_blocks.chain[-1].data = "corrupted_data"
+    
+    with pytest.raises(Exception, match= "Cannot replace the chain. It is invalid:"):
+        blockchain.replace_chain(blockchain_3_blocks.chain)
