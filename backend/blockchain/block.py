@@ -32,10 +32,6 @@ class Block:
         self.data = data
         self.difficulty = difficulty
         self.nonce = nonce
-        self.chain = []
-
-    # def add_block(self, data):
-    #     self.chain.append(Block(data))
 
     def __repr__(self):
         return (
@@ -47,6 +43,9 @@ class Block:
             f"difficulty: {self.difficulty}), "
             f"nonce: {self.nonce})"
         )
+        
+    def __eq__(self, value: object) -> bool:
+        return self.__dict__ == value.__dict__
 
     @staticmethod
     def mine_block(last_block, data):

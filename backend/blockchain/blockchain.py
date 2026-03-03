@@ -1,3 +1,4 @@
+from __future__ import annotations
 from backend.blockchain.block import Block
 
 
@@ -16,8 +17,20 @@ class Blockchain:
     def __repr__(self):
         return f"Blockchain: {self.chain}"
 
+    def replace_chain(self, chain):
+
+        if len(chain) <= len(self.chain):
+            raise Exception("Cannot replace the chain. Its lenght is too short")
+
+        try:
+            Blockchain.is_valid_blockchain(chain)
+        except Exception as e:
+            raise Exception(f"Cannot replace the chain. It is invalid: {e}")
+
+        self.chain = list(chain)
+
     @staticmethod
-    def is_valid_blockchain(chain):
+    def is_valid_blockchain(chain) -> bool:
         """
         Validate the whole chain.
         - start with genesis
@@ -31,6 +44,8 @@ class Blockchain:
             block = chain[i]
             last_block = chain[i - 1]
             Block.is_valid_block(last_block=last_block, block=block)
+
+        return True
 
 
 def main():
