@@ -46,6 +46,9 @@ class Block:
         
     def __eq__(self, value: object) -> bool:
         return self.__dict__ == value.__dict__
+    
+    def to_json(self):
+        return self.__dict__
 
     @staticmethod
     def mine_block(last_block, data):
