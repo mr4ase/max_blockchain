@@ -23,3 +23,5 @@ python -m pytest backend/tests
 python -m backend.app
 ```
 
+**Run a peer instance**
+export PEER=True && python -m backend.app

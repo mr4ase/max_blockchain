@@ -37,6 +37,31 @@ class Blockchain:
 
         return serialized_chain
 
+    def handle_block_from_peer(
+        self, block: Block, resolve_conflicts_with_new_mined_block_callback
+    ):
+        last_block = self.chain[-1]
+
+        try:
+            Block.is_valid_block(last_block=last_block, block=block)
+            self.chain.append(block)
+            print("New block added")
+        except Exception as e:
+            print(f"Received invalid block: {e}")
+            resolve_conflicts_with_new_mined_block_callback()
+
+    @staticmethod
+    def from_json(blockchain_from_json: list[dict]):
+        if not isinstance(blockchain_from_json, list):
+            raise ValueError("Blockchain JSON must be a list!")
+
+        blocks_from_json = [
+            Block.from_json(block_json) for block_json in blockchain_from_json
+        ]
+        blockchain = Blockchain()
+        blockchain.chain = blocks_from_json
+        return blockchain
+
     @staticmethod
     def is_valid_blockchain(chain) -> bool:
         """

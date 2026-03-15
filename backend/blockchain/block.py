@@ -39,16 +39,22 @@ class Block:
             f"timestamp: {self.timestamp}, "
             f"last_hash: {self.last_hash}, "
             f"hash: {self.hash}, "
-            f"data: {self.data}), "
-            f"difficulty: {self.difficulty}), "
+            f"data: {self.data}, "
+            f"difficulty: {self.difficulty}, "
             f"nonce: {self.nonce})"
         )
-        
+
     def __eq__(self, value: object) -> bool:
+        if not isinstance(value, Block):
+            return False
         return self.__dict__ == value.__dict__
-    
+
     def to_json(self):
-        return self.__dict__
+        return dict(self.__dict__)
+
+    @staticmethod
+    def from_json(block_json: dict):
+        return Block(**block_json)
 
     @staticmethod
     def mine_block(last_block, data):
