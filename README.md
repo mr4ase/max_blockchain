@@ -24,4 +24,11 @@ python -m backend.app
 ```
 
 **Run a peer instance**
-export PEER=True && python -m backend.app
+Start new terminal sessions with commands:
+```
+PORT=5000 python -m backend.run
+...
+PORT=5001 python -m backend.run
+PORT=5002 python -m backend.run
+PORT=5003 python -m backend.run
+```

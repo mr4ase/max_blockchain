@@ -1,3 +1,5 @@
 pytest
 flask
 pubnub
+requests
+cryptography
