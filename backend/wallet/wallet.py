@@ -35,8 +35,9 @@ class Wallet:
         signature = self._private_key.sign(data_in_bytes, ec.ECDSA(hashes.SHA256()))
         return signature
 
+    @staticmethod
     def verify(
-        self, public_key: ec.EllipticCurvePublicKey, data: Any, signature: bytes
+        public_key: ec.EllipticCurvePublicKey, data: Any, signature: bytes
     ) -> bool:
 
         data_in_bytes = encode_data_to_bytes(data=data)
