@@ -12,8 +12,6 @@ import json
 from backend.config import STARTING_BALANCE
 from backend.util.encoding_utils import encode_data_to_bytes
 
-# TODO Write tests for Wallet class. Create the wallet, sign the data, verify it with right key/wrong key.
-
 
 def test_sign_happy_path():
     wallet = Wallet()

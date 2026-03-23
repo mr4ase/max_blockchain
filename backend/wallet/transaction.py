@@ -25,6 +25,24 @@ class Transaction:
 
         self.input = self._create_input(sender_wallet=sender_wallet, output=self.output)
 
+    def update(
+        self, sender_wallet: Wallet, recipient_address: str, amount: int
+    ) -> None:
+
+        if recipient_address == sender_wallet.address:
+            raise Exception("The sender and recipient have the same addresses!")
+
+        if amount > self.output[sender_wallet.address]:
+            raise Exception("The amount exceeds the current balance!")
+
+        if recipient_address not in self.output:
+            self.output[recipient_address] = amount
+        else:
+            self.output[recipient_address] += amount
+        self.output[sender_wallet.address] -= amount
+
+        self.input = self._create_input(sender_wallet=sender_wallet, output=self.output)
+
     def _create_output(
         self,
         sender_wallet: Wallet,

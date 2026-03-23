@@ -40,7 +40,7 @@ class Blockchain:
     def handle_block_from_peer(
         self, block: Block, resolve_conflicts_with_new_mined_block_callback
     ):
-        if block.hash == self.chain[-1].hash:
+        if any(bl.hash == block.hash for bl in self.chain):
             print("Block already exists in the chain")
             return
 
