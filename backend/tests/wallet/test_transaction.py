@@ -45,9 +45,7 @@ def test_tx_wrong_signature(sender_wallet, recipient_wallet):
     corrupted[0] ^= 1
     corrupted_signature = bytes(corrupted)
 
-    assert not sender_wallet.verify(
-        sender_wallet.public_key, tx.output, corrupted_signature
-    )
+    assert not Wallet.verify(sender_wallet.public_key, tx.output, corrupted_signature)
 
 
 def test_tx_wrong_output(sender_wallet, recipient_wallet):
@@ -62,9 +60,7 @@ def test_tx_wrong_output(sender_wallet, recipient_wallet):
 
     tx.output = corrupted_output
 
-    assert not sender_wallet.verify(
-        sender_wallet.public_key, tx.output, tx.input["signature"]
-    )
+    assert not Wallet.verify(sender_wallet.public_key, tx.output, tx.input["signature"])
 
 
 def test_tx_output_sum_always_equal_balance(sender_wallet, recipient_wallet):
@@ -88,7 +84,7 @@ def test_update_tx_happy_path(sender_wallet, recipient_wallet):
     new_sender_balance = balance_after_first_tx - test_amount_for_update
     assert tx.output[sender_wallet.address] == new_sender_balance
     assert tx.output[recipient_wallet.address] == test_amount + test_amount_for_update
-    assert sender_wallet.verify(
+    assert Wallet.verify(
         public_key=sender_wallet.public_key,
         data=tx.output,
         signature=tx.input["signature"],
@@ -119,3 +115,41 @@ def test_update_tx_amount_exceeds_balance(sender_wallet, recipient_wallet):
             recipient_address=recipient_wallet.address,
             amount=test_amount_for_update,
         )
+
+
+def test_is_valid_tx(sender_wallet, recipient_wallet):
+    test_amount = 100
+    tx = Transaction(sender_wallet, recipient_wallet.address, test_amount)
+    Transaction.is_valid(tx=tx)
+
+
+def test_is_valid_tx_amounts_are_not_equal(sender_wallet, recipient_wallet):
+    test_amount = 100
+    tx = Transaction(sender_wallet, recipient_wallet.address, test_amount)
+    corrupted_output = {
+        recipient_wallet.address: test_amount,
+        sender_wallet.address: 5000,
+    }
+
+    tx.output = corrupted_output
+
+    with pytest.raises(
+        Exception,
+        match=f"Invalid transaction {tx.id}: output amounts do not match the input amount.",
+    ):
+        Transaction.is_valid(tx=tx)
+
+
+def test_is_valid_tx_invalid_signature(sender_wallet, recipient_wallet):
+    test_amount = 100
+    tx = Transaction(sender_wallet, recipient_wallet.address, test_amount)
+    right_signature = tx.input["signature"]
+    corrupted = bytearray(right_signature)
+    corrupted[0] ^= 1
+    corrupted_signature = bytes(corrupted)
+    tx.input["signature"] = corrupted_signature
+
+    with pytest.raises(
+        Exception, match=f"Invalid transaction {tx.id}: The signature is invalid."
+    ):
+        Transaction.is_valid(tx=tx)

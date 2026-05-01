@@ -14,6 +14,8 @@ from pubnub.enums import PNStatusCategory
 
 from backend.blockchain.block import Block
 from backend.blockchain.blockchain import Blockchain
+from backend.wallet.transaction import Transaction
+from backend.wallet.transaction_pool import TransactionPool
 
 
 pnconfig = PNConfiguration()
@@ -31,15 +33,22 @@ KNOWN_PEERS = [
 CHANNELS = {
     "BLOCK_CHANNEL": "BLOCK_CHANNEL",
     "TEST_CHANNEL": "TEST_CHANNEL",
-    "TRANSACTION_CHANNEL": "TRANSACTION CHANNEL",
+    "TRANSACTION_CHANNEL": "TRANSACTION_CHANNEL",
 }
 
 
 class Listener(SubscribeCallback):
-    def __init__(self, connected_event, blockchain: Blockchain, pubsub: PubSub):
+    def __init__(
+        self,
+        connected_event,
+        blockchain: Blockchain,
+        transaction_pool: TransactionPool,
+        pubsub: PubSub,
+    ):
         self.connected_event = connected_event
         self.blockchain = blockchain
         self.pubsub = pubsub
+        self.transaction_pool = transaction_pool
 
     def message(self, pubnub, message):
         print(f"\n-- Channel: {message.channel} | Incoming message: {message.message}")
@@ -50,18 +59,25 @@ class Listener(SubscribeCallback):
                 block, self.pubsub.resolve_conflicts_with_new_mined_block_callback
             )
 
+        elif message.channel == CHANNELS["TRANSACTION_CHANNEL"]:
+            tx = Transaction.from_json(message.message)
+            self.transaction_pool.set_transaction(tx=tx)
+
     def status(self, pubnub, status):
         if status.category == PNStatusCategory.PNConnectedCategory:
             self.connected_event.set()
 
 
 class PubSub:
-    def __init__(self, blockchain: Blockchain) -> None:
+    def __init__(
+        self, blockchain: Blockchain, transaction_pool: TransactionPool
+    ) -> None:
         self.connected = threading.Event()
         self.pubnub = PubNub(pnconfig)
         self.blockchain = blockchain
+        self.transaction_pool = transaction_pool
         self.peers = set(KNOWN_PEERS)
-        listener = Listener(self.connected, self.blockchain, self)
+        listener = Listener(self.connected, self.blockchain, transaction_pool, self)
         self.pubnub.add_listener(listener)
         self.pubnub.subscribe().channels(CHANNELS.values()).execute()
         self.connected.wait(timeout=5)
@@ -73,6 +89,9 @@ class PubSub:
 
     def broadcast_block(self, block: Block):
         self.publish(channel=CHANNELS["BLOCK_CHANNEL"], message=block.to_json())
+
+    def broadcast_transaction(self, tx: Transaction):
+        self.publish(channel=CHANNELS["TRANSACTION_CHANNEL"], message=tx.to_json())
 
     def resolve_conflicts_with_new_mined_block_callback(self):
 
@@ -112,7 +131,8 @@ class PubSub:
 
 def main():
     blockchain = Blockchain()
-    pubsub = PubSub(blockchain=blockchain)
+    transaction_pool = TransactionPool()
+    pubsub = PubSub(blockchain=blockchain, transaction_pool=transaction_pool)
     message = {"foo": "bar"}
     print("Publishing message...")
     pubsub.publish(CHANNELS["TEST_CHANNEL"], message=message)

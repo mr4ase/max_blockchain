@@ -15,8 +15,3 @@ def sender_wallet() -> Wallet:
 @pytest.fixture(scope="function")
 def recipient_wallet() -> Wallet:
     return Wallet()
-
-
-@pytest.fixture(scope="session")
-def test_amount_100() -> int:
-    return 100
