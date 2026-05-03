@@ -32,6 +32,7 @@ def register_routes(app):
 
         block = blockchain.chain[-1]
         pubsub.broadcast_block(block=block)
+        transaction_pool.clear_blockchain_transactions(blockchain)
 
         return jsonify(block.to_json())
 

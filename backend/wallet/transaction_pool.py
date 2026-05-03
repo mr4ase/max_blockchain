@@ -1,6 +1,8 @@
 # backend\wallet\transaction_pool.py
 
 from backend.wallet.transaction import Transaction
+from backend.blockchain.blockchain import Blockchain
+from backend.blockchain.block import Block
 
 
 class TransactionPool:
@@ -27,4 +29,9 @@ class TransactionPool:
     def transaction_data(self) -> list[dict]:
         return [tx.to_json() for tx in self.transaction_map.values()]
 
-    
+    def clear_blockchain_transactions(self, blockchain: Blockchain):
+        for block in blockchain.chain:
+            for transaction in block.data:
+                if transaction["id"] in self.transaction_map:
+                    del self.transaction_map[transaction["id"]]
+                

@@ -127,6 +127,7 @@ class PubSub:
 
         if chain_for_replacing:
             self.blockchain.replace_chain(chain_for_replacing)
+            self.transaction_pool.clear_blockchain_transactions(self.blockchain)
 
 
 def main():
