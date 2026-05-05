@@ -14,7 +14,7 @@ def create_app():
     blockchain = Blockchain()
     transaction_pool = TransactionPool()
     pubsub = PubSub(blockchain=blockchain, transaction_pool=transaction_pool)
-    wallet = Wallet()
+    wallet = Wallet(blockchain=blockchain)
 
     app.config["blockchain"] = blockchain
     app.config["pubsub"] = pubsub

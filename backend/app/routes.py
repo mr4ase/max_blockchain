@@ -75,3 +75,10 @@ def register_routes(app):
             jsonify(new_tx.to_json()),
             response_code,
         )
+
+    @app.route("/wallet/info", method = ["GET"]):
+    def wallet_info():
+        wallet = current_app.config["wallet"]
+        
+        return jsonify({"address": wallet.address,
+                        "balance": wallet.balance})
