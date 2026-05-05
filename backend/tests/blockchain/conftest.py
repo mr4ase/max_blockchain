@@ -28,3 +28,4 @@ def blockchain_3_blocks() -> Blockchain:
         blockchain.add_block(i)
 
     return blockchain
+

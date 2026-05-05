@@ -9,6 +9,8 @@ from typing import Any
 import json
 from backend.config import STARTING_BALANCE
 from backend.util.encoding_utils import encode_data_to_bytes
+from backend.blockchain.blockchain import Blockchain
+
 
 class Wallet:
     def __init__(self) -> None:
@@ -31,12 +33,12 @@ class Wallet:
         data_in_bytes = encode_data_to_bytes(data=data)
         signature = self._private_key.sign(data_in_bytes, ec.ECDSA(hashes.SHA256()))
         return signature
-    
-    def public_key_str(self)-> str:
+
+    def public_key_str(self) -> str:
         return self.public_key.public_bytes(
             encoding=serialization.Encoding.DER,
             format=serialization.PublicFormat.SubjectPublicKeyInfo,
-        ).decode('utf-8')
+        ).decode("utf-8")
 
     @staticmethod
     def verify(
@@ -49,3 +51,17 @@ class Wallet:
             return True
         except InvalidSignature:
             return False
+
+    @staticmethod
+    def calculate_balance(blockchain: Blockchain, address: str) -> int:
+
+        balance = STARTING_BALANCE
+
+        for block in blockchain.chain:
+            for transaction in block.data:
+                if transaction["input"]["address"] == address:
+                    balance = transaction["output"][address]
+                elif address in transaction["output"]:
+                    balance += transaction["output"][address]
+
+        return balance
