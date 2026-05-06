@@ -26,8 +26,11 @@ def register_routes(app):
         blockchain = current_app.config["blockchain"]
         pubsub = current_app.config["pubsub"]
         transaction_pool = current_app.config["transaction_pool"]
+        wallet = current_app.config["wallet"]
 
         block_data = transaction_pool.transaction_data()
+        reward_tx = Transaction.reward_transaction(wallet)
+        block_data.append(reward_tx.to_json())
         blockchain.add_block(block_data)
 
         block = blockchain.chain[-1]
@@ -76,9 +79,8 @@ def register_routes(app):
             response_code,
         )
 
-    @app.route("/wallet/info", method = ["GET"]):
+    @app.route("/wallet/info", methods=["GET"])
     def wallet_info():
         wallet = current_app.config["wallet"]
-        
-        return jsonify({"address": wallet.address,
-                        "balance": wallet.balance})
+
+        return jsonify({"address": wallet.address, "balance": wallet.balance})

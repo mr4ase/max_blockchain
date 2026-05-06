@@ -11,6 +11,7 @@ from backend.util.encoding_utils import (
     signature_to_str,
     signature_from_str,
 )
+from backend.config import MINING_REWARD, MINING_REWARD_INPUT
 
 
 class Transaction:
@@ -94,15 +95,20 @@ class Transaction:
         }
 
     def to_json(self) -> dict:
+
+        input_data = {}
+
+        for key, value in self.input.items():
+            if key == "public_key":
+                input_data[key] = public_key_to_str(self.input[key])
+            elif key == "signature":
+                input_data[key] = signature_to_str(self.input[key])
+            else:
+                input_data[key] = value
+    
         return {
             "id": self.id,
-            "input": {
-                "timestamp": self.input["timestamp"],
-                "amount": self.input["amount"],
-                "address": self.input["address"],
-                "public_key": public_key_to_str(self.input["public_key"]),
-                "signature": signature_to_str(self.input["signature"]),
-            },
+            "input": input_data,
             "output": self.output,
         }
 
@@ -138,3 +144,8 @@ class Transaction:
 
         if not Wallet.verify(tx.input["public_key"], tx.output, tx.input["signature"]):
             raise Exception(f"Invalid transaction {tx.id}: The signature is invalid.")
+
+    @staticmethod
+    def reward_transaction(miner_wallet: Wallet) -> Transaction:
+        output = {miner_wallet.address: MINING_REWARD}
+        return Transaction(input=MINING_REWARD_INPUT, output=output)
