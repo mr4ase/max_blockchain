@@ -2,7 +2,7 @@
 
 from backend.wallet.wallet import Wallet
 from backend.wallet.transaction import Transaction
-from backend.config import STARTING_BALANCE
+from backend.config import STARTING_BALANCE, MINING_REWARD
 import pytest
 
 
@@ -153,3 +153,25 @@ def test_is_valid_tx_invalid_signature(sender_wallet, recipient_wallet):
         Exception, match=f"Invalid transaction {tx.id}: The signature is invalid."
     ):
         Transaction.is_valid(tx=tx)
+
+
+def test_is_valid_tx_mining_reward():
+    miner_wallet = Wallet()
+    tx = Transaction.reward_transaction(miner_wallet=miner_wallet)
+    Transaction.is_valid(tx=tx)
+
+
+def test_is_valid_tx_mining_reward_two_recipients():
+    miner_wallet = Wallet()
+    tx = Transaction.reward_transaction(miner_wallet=miner_wallet)
+    tx.output["other_miner"] = 50
+    with pytest.raises(Exception, match=f"Invalid number of miners in mining reward tx! Tx.id: {tx.id}"):
+        Transaction.is_valid(tx=tx)
+        
+def test_is_valid_tx_mining_reward_illegal_reward():
+    miner_wallet = Wallet()
+    tx = Transaction.reward_transaction(miner_wallet=miner_wallet)
+    tx.output[miner_wallet.address] = 60
+    with pytest.raises(Exception, match=f"Invalid mining reward amount in tx! Tx.id: {tx.id}"):
+        Transaction.is_valid(tx=tx)
+    

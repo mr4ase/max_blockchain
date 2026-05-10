@@ -105,7 +105,7 @@ class Transaction:
                 input_data[key] = signature_to_str(self.input[key])
             else:
                 input_data[key] = value
-    
+
         return {
             "id": self.id,
             "input": input_data,
@@ -136,6 +136,13 @@ class Transaction:
 
     @staticmethod
     def is_valid(tx: Transaction) -> None:
+
+        if tx.input == MINING_REWARD_INPUT:
+            if len(tx.output) != 1:
+                raise Exception(f"Invalid number of miners in mining reward tx! Tx.id: {tx.id}")
+            if list(tx.output.values()) != [MINING_REWARD]:
+                raise Exception(f"Invalid mining reward amount in tx! Tx.id: {tx.id}")
+            return
 
         if tx.input["amount"] != sum(tx.output.values()):
             raise Exception(
