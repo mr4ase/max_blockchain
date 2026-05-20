@@ -1,15 +1,18 @@
 # backend\wallet\wallet.py
+
+from __future__ import annotations
+
 from cryptography.hazmat.primitives.asymmetric import ec
 from cryptography.hazmat.backends import default_backend
 from cryptography.hazmat.primitives import hashes
 from cryptography.hazmat.primitives import serialization
 from cryptography.exceptions import InvalidSignature
 
-from typing import Any
-import json
+from typing import Any, TYPE_CHECKING
 from backend.config import STARTING_BALANCE
 from backend.util.encoding_utils import encode_data_to_bytes
-from backend.blockchain.blockchain import Blockchain
+if TYPE_CHECKING:
+    from backend.blockchain.blockchain import Blockchain
 
 
 class Wallet:

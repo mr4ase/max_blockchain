@@ -120,12 +120,14 @@ class Transaction:
 
         try:
             tx_json_data = copy.deepcopy(tx_json_data)
-            tx_json_data["input"]["signature"] = signature_from_str(
-                tx_json_data["input"]["signature"]
-            )
-            tx_json_data["input"]["public_key"] = public_key_from_str(
-                tx_json_data["input"]["public_key"]
-            )
+            if "signature" in tx_json_data["input"]:
+                tx_json_data["input"]["signature"] = signature_from_str(
+                    tx_json_data["input"]["signature"]
+                )
+            if "public_key" in tx_json_data["input"]:
+                tx_json_data["input"]["public_key"] = public_key_from_str(
+                    tx_json_data["input"]["public_key"]
+                )
             return Transaction(**tx_json_data)
 
         except KeyError as e:
@@ -139,7 +141,9 @@ class Transaction:
 
         if tx.input == MINING_REWARD_INPUT:
             if len(tx.output) != 1:
-                raise Exception(f"Invalid number of miners in mining reward tx! Tx.id: {tx.id}")
+                raise Exception(
+                    f"Invalid number of miners in mining reward tx! Tx.id: {tx.id}"
+                )
             if list(tx.output.values()) != [MINING_REWARD]:
                 raise Exception(f"Invalid mining reward amount in tx! Tx.id: {tx.id}")
             return

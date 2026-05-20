@@ -1,5 +1,8 @@
 from __future__ import annotations
 from backend.blockchain.block import Block
+from backend.wallet.transaction import Transaction
+from backend.wallet.wallet import Wallet
+from backend.config import MINING_REWARD_INPUT
 
 
 class Blockchain:
@@ -83,6 +86,44 @@ class Blockchain:
             Block.is_valid_block(last_block=last_block, block=block)
 
         return True
+
+    @staticmethod
+    def is_valid_transaction_chain(chain: list) -> None:
+
+        tx_unique_id_set = set()
+        for i in range(1, len(chain)):
+            block = chain[i]
+
+            is_rewarded = False
+
+            for transaction_json in block.data:
+                transaction = Transaction.from_json(transaction_json)
+
+                if transaction.id in tx_unique_id_set:
+                    raise Exception(
+                        f"Transaction with id={transaction.id} is duplicated!"
+                    )
+                tx_unique_id_set.add(transaction.id)
+
+                if transaction.input == MINING_REWARD_INPUT:
+                    if is_rewarded:
+                        raise Exception(
+                            f"The block with hash={block.hash} already has a reward!"
+                        )
+                    is_rewarded = True
+                else:
+                    historic_blockchain = Blockchain()
+                    historic_blockchain.chain = chain[1:i]
+
+                    historic_balance = Wallet.calculate_balance(
+                        blockchain=historic_blockchain, address=transaction.input["address"]
+                    )
+                    if historic_balance != transaction.input["amount"]:
+                        raise Exception(
+                            f"Transaction with id={transaction.id} has an invalid input amount!"
+                        )
+
+                Transaction.is_valid(transaction)
 
 
 def main():
