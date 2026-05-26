@@ -32,3 +32,8 @@ PORT=5001 python -m backend.run
 PORT=5002 python -m backend.run
 PORT=5003 python -m backend.run
 ```
+
+**Run the frontend**
+'''
+npm run start
+'''

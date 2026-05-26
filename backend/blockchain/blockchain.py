@@ -91,7 +91,7 @@ class Blockchain:
     def is_valid_transaction_chain(chain: list) -> None:
 
         tx_unique_id_set = set()
-        for i in range(1, len(chain)):
+        for i in range(len(chain)):
             block = chain[i]
 
             is_rewarded = False
@@ -113,10 +113,11 @@ class Blockchain:
                     is_rewarded = True
                 else:
                     historic_blockchain = Blockchain()
-                    historic_blockchain.chain = chain[1:i]
+                    historic_blockchain.chain = chain[:i]
 
                     historic_balance = Wallet.calculate_balance(
-                        blockchain=historic_blockchain, address=transaction.input["address"]
+                        blockchain=historic_blockchain,
+                        address=transaction.input["address"],
                     )
                     if historic_balance != transaction.input["amount"]:
                         raise Exception(
