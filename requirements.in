@@ -4,3 +4,4 @@ pubnub
 requests
 cryptography
 pydantic
+Flask-Cors
