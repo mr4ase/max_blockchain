@@ -25,16 +25,16 @@ function ConductTransaction() {
   }
 
   const getErrorMessage = json => {
-  if (typeof json.details === 'string') {
-    return json.details;
-  }
+    if (typeof json.details === 'string') {
+      return json.details;
+    }
 
-  if (Array.isArray(json.details) && json.details.length > 0) {
-    return json.details[0].msg;
-  }
+    if (Array.isArray(json.details) && json.details.length > 0) {
+      return json.details[0].msg;
+    }
 
-  return json.error || 'Transaction failed';
-};
+    return json.error || 'Transaction failed';
+  };
 
   const submitTransaction = () => {
     setError('');

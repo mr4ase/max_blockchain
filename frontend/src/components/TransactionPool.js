@@ -9,14 +9,26 @@ const POLL_INTERVAL = 10 * SECONDS_JS;
 function TransactionPool() {
   const navigate = useNavigate();
   const [transactions, setTransactions] = useState([]);
+  const [fetchError, setFetchError] = useState('');
+  const [miningError, setMiningError] = useState('');
 
   const fetchTransactions = () => {
-    fetch(`${API_BASE_URL}/transactions`)
-      .then(response => response.json())
+    fetch(`${API_BASE_URL}/transaction-pool`)
+      .then(async response => {
+        const json = await response.json();
+        if (!response.ok) {
+          throw new Error(json.error || 'Transaction-pool fetching error!');
+        }
+        return json;
+
+      })
       .then(json => {
         console.log('transactions json', json);
-
         setTransactions(json);
+        setFetchError('');
+      })
+      .catch(error => {
+        setFetchError(error.message);
       });
   }
 
@@ -29,11 +41,22 @@ function TransactionPool() {
   }, []);
 
   const fetchMineBlock = () => {
+    setMiningError('');
     fetch(`${API_BASE_URL}/blockchain/mine`)
-      .then(() => {
-        alert('Success!');
+      .then( async response => {
+        const json = await response.json();
+        if (!response.ok) {
+          throw new Error(json.error || 'Block mining failed');
+        }
 
-        navigate('/blockchain');
+        return json;
+
+      })
+      .then(() => {
+          navigate('/blockchain');
+      })
+      .catch(error => {
+        setMiningError(error.message);
       });
   }
 
@@ -53,12 +76,29 @@ function TransactionPool() {
         }
       </div>
       <hr />
+      {transactions.length === 0 && (
+        <div>
+          No pending transactions.
+        </div>
+      )}      
       <Button
         variant="danger"
         onClick={fetchMineBlock}
+        disabled={transactions.length === 0}
       >
         Mine a block of these transactions
       </Button>
+
+      {fetchError &&  (
+          <div className='text-danger'>
+            {fetchError}
+          </div>
+      )}
+      {miningError &&  (
+          <div className='text-danger'>
+            {miningError}
+          </div>
+      )}
     </div>
   )
 }

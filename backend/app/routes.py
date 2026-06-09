@@ -146,3 +146,8 @@ def register_routes(app):
                 unique_addresses.update(transaction["output"].keys())
 
         return jsonify(sorted(unique_addresses)), 200
+
+    @app.route("/transaction-pool", methods = ["GET"])
+    def get_transaction_pool():
+        transaction_pool = current_app.config["transaction_pool"]
+        return jsonify(transaction_pool.transaction_data()), 200

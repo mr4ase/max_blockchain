@@ -5,6 +5,9 @@ from backend.blockchain.block import Block
 from backend.blockchain.blockchain import Blockchain
 from backend.util.crypto_hash import crypto_hash
 from backend.util.hex_to_binary import hex_to_binary
+from backend.wallet.wallet import Wallet
+from backend.wallet.transaction import Transaction
+
 
 import time
 import pytest
@@ -23,9 +26,16 @@ def valid_block(last_block) -> Block:
 @pytest.fixture
 def blockchain_3_blocks() -> Blockchain:
     blockchain = Blockchain()
+    test_amount = 20
 
-    for i in range(3):
-        blockchain.add_block(i)
+    for _ in range(3):
+        sender = Wallet()
+        recipient = Wallet()
+        tx = Transaction(
+            sender_wallet=sender,
+            recipient_address=recipient.address,
+            amount=test_amount,
+        )
+        blockchain.add_block([tx.to_json()])
 
     return blockchain
-
