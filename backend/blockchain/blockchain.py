@@ -36,7 +36,6 @@ class Blockchain:
         serialized_chain = []
         # serialized_chain = [block.to_json() for block in self.chain]
         serialized_chain = list(map(lambda block: block.to_json(), self.chain))
-        print(serialized_chain)
 
         return serialized_chain
 

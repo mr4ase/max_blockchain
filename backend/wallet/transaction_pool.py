@@ -2,7 +2,8 @@
 
 from backend.wallet.transaction import Transaction
 from backend.blockchain.blockchain import Blockchain
-from backend.blockchain.block import Block
+
+# from backend.blockchain.block import Block
 
 
 class TransactionPool:
@@ -34,4 +35,3 @@ class TransactionPool:
             for transaction in block.data:
                 if transaction["id"] in self.transaction_map:
                     del self.transaction_map[transaction["id"]]
-                

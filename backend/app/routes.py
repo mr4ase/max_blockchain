@@ -84,3 +84,65 @@ def register_routes(app):
         wallet = current_app.config["wallet"]
 
         return jsonify({"address": wallet.address, "balance": wallet.balance})
+
+    @app.route("/blockchain/range", methods=["GET"])
+    def blockchain_range():
+        start = request.args.get("start")
+        end = request.args.get("end")
+
+        if start is None:
+            return jsonify({"error": "Start parameter missed"}), 400
+
+        try:
+            start_index = int(start)
+        except ValueError as e:
+            return jsonify({"error": "Start parameter type error. Must be int"}), 400
+
+        if start_index < 0:
+            return jsonify({"error": "Start parameter must be non-negative."}), 400
+
+        if end is None:
+            return jsonify({"error": "End parameter missed"}), 400
+        try:
+            end_index = int(end)
+        except ValueError as e:
+            return jsonify({"error": "End parameter type error. Must be int"}), 400
+
+        blockchain = current_app.config["blockchain"]
+        chain_len = len(blockchain.chain)
+        block_range = []
+
+        if start_index >= chain_len:
+            return jsonify([]), 200
+
+        if end_index < 0:
+            return jsonify({"error": "End parameter must be non-negative."}), 400
+
+        if end_index < start_index:
+            return (
+                jsonify({"error": "End parameter must greater or equal than start"}),
+                400,
+            )
+
+        if end_index >= chain_len:
+            end_index = chain_len
+
+        for i in range(chain_len - 1 - start_index, chain_len - 1 - end_index, -1):
+            block_range.append(blockchain.chain[i].to_json())
+
+        return jsonify(block_range), 200
+
+    @app.route("/blockchain/length", methods=["GET"])
+    def blockchain_length():
+        blockchain = current_app.config["blockchain"]
+        return jsonify(len(blockchain.chain)), 200
+
+    @app.route("/known-addresses", methods=["GET"])
+    def blockchain_known_addresses():
+        unique_addresses = set()
+        blockchain = current_app.config["blockchain"]
+        for block in blockchain.chain:
+            for transaction in block.data:
+                unique_addresses.update(transaction["output"].keys())
+
+        return jsonify(sorted(unique_addresses)), 200
